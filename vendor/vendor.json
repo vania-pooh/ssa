@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "24CmI1XvvB42B1pV1OhLKecZo2s=",
+			"path": "github.com/aandryashin/matchers",
+			"revision": "5eb67beb188b5076812683a96c13bef79d970fd8",
+			"revisionTime": "2016-07-29T13:19:23Z"
+		}
+	],
+	"rootPath": "github.com/vania-pooh/ssa"
+}
