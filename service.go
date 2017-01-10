@@ -2,10 +2,11 @@ package main
 
 import (
 	"net/http"
-	"regexp"
 	"os"
 	"html/template"
 	"fmt"
+	"regexp"
+	"log"
 )
 
 const (
@@ -32,11 +33,13 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	email := r.Form.Get(emailField)
 	if !isValidEmail(email) {
+		log.Printf("Skipping invalid email [%s]\n", email)
 		http.Error(w, "no valid email provided", http.StatusBadRequest)
 		return
 	}
 	err := saveEmail(email)
 	if (err != nil) {
+		log.Printf("Server error: %v\n", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -47,7 +50,7 @@ func isValidEmail(email string) bool {
 		return false
 	}
 	regex := regexp.MustCompile(emailRegexp)
-	return regex.Match([]byte(email))
+	return regex.MatchString(email)
 }
 
 func saveEmail(email string) error {
