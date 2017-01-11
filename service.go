@@ -8,6 +8,7 @@ import (
 	"log"
 	"mime"
 	"path/filepath"
+	"strconv"
 )
 
 const (
@@ -30,6 +31,7 @@ func static(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
 	w.Write(data)
 }
 
@@ -84,10 +86,17 @@ func saveEmail(email string) error {
 	return nil
 }
 
+func addCommonHeaders(fn http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Server", "Almighty 1.0 with BlackJack Patch 1.1, Hookers Patch 2.1")
+		fn(w, r)
+	}
+}
+
 func mux() http.Handler {
 	mux := http.NewServeMux()
-	mux.HandleFunc(rootPath, root)
-	mux.HandleFunc(staticPath, static)
-	mux.HandleFunc(subscribePath, subscribe)
+	mux.HandleFunc(rootPath, addCommonHeaders(root))
+	mux.HandleFunc(staticPath, addCommonHeaders(static))
+	mux.HandleFunc(subscribePath, addCommonHeaders(subscribe))
 	return mux
 }
