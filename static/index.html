@@ -14,10 +14,12 @@
             <img src="logo.png" alt="Logo" class="center-block" aria-label="Logo">
             <form class="form-inline">
                 <div class="form-group">
-                    <input id="email" type="text" class="form-control input-lg" name="email" placeholder="john.smith@test.com">
+                    <input id="email" type="text" class="form-control input-lg" name="email" placeholder="john.smith@test.com" autofocus>
                 </div>
-                <button id="send" type="submit" class="btn btn-default btn-lg">Notify me</button>
-                <span class="help-block">Leave us your email to be notified when launched.</span>
+                <button id="send" type="submit" class="btn btn-default btn-lg" title="Click to send" aria-label="Click to send" disabled>Notify me</button>
+                <button id="done" class="btn btn-default btn-success btn-lg hidden" title="Click to try again" aria-label="Click to try again">Done</button>
+                <button id="fail" class="btn btn-default btn-danger btn-lg hidden" title="Click to try again" aria-label="Click to try again">Failed</button>
+                <span class="help-block">Leave your email to be notified when launched.</span>
             </form>
         </div>
     </div>
@@ -26,20 +28,68 @@
     // https://github.com/yanatan16/nanoajax
     !function(t,e){function n(t){return t&&e.XDomainRequest&&!/MSIE 1/.test(navigator.userAgent)?new XDomainRequest:e.XMLHttpRequest?new XMLHttpRequest:void 0}function o(t,e,n){t[e]=t[e]||n}var r=["responseType","withCredentials","timeout","onprogress"];t.ajax=function(t,a){function s(t,e){return function(){c||(a(void 0===f.status?t:f.status,0===f.status?"Error":f.response||f.responseText||e,f),c=!0)}}var u=t.headers||{},i=t.body,d=t.method||(i?"POST":"GET"),c=!1,f=n(t.cors);f.open(d,t.url,!0);var l=f.onload=s(200);f.onreadystatechange=function(){4===f.readyState&&l()},f.onerror=s(null,"Error"),f.ontimeout=s(null,"Timeout"),f.onabort=s(null,"Abort"),i&&(o(u,"X-Requested-With","XMLHttpRequest"),e.FormData&&i instanceof e.FormData||o(u,"Content-Type","application/x-www-form-urlencoded"));for(var p,m=0,v=r.length;v>m;m++)p=r[m],void 0!==t[p]&&(f[p]=t[p]);for(var p in u)f.setRequestHeader(p,u[p]);return f.send(i),f},e.nanoajax=t}({},function(){return this}());
 
-    document.getElementById('send').onclick = function(e) {
-        e.preventDefault();
-        var email = document.getElementById('email').value;
-        subscribe(email);
-    };
-    window.subscribe = function(email) {
-        nanoajax.ajax({url: '/subscribe', method: 'POST', body: 'email=' + encodeURIComponent(email)}, function (code, responseText, request) {
-            if (code == 200) {
-                alert('Done');
-            } else {
-                alert('Failed');
-            }
+    !function() {
+        var send = document.getElementById('send'),
+            done = document.getElementById('done'),
+            fail = document.getElementById('fail'),
+            input = document.getElementById('email');
+        
+        send.addEventListener('click', function(e) {
+            e.preventDefault();
+            var email = input.value;
+            subscribe(email);
         });
-    };
+
+        var show = function(elem) {
+            if (elem.className.indexOf('hidden') != -1) {
+                elem.className = elem.className.replace('hidden', '');
+            }
+        };
+
+        var hide = function(elem) {
+            if (elem.className.indexOf('hidden') === -1) {
+                elem.className += ' hidden';
+            }
+        };
+
+        var isValidEmail = function(email) {
+            var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(email);
+        };
+
+        var onType = function() {
+            if (input.disabled && input.value) {
+                input.removeAttribute('disabled');
+            }
+            send.disabled = !input.value || !isValidEmail(input.value);
+        };
+        input.addEventListener('change', onType);
+        input.addEventListener('keyup', onType);
+        onType();
+        
+        var resetClick = function(e) {
+            e.preventDefault();
+            input.disabled = false;
+            hide(done);
+            hide(fail);
+            show(send);
+        };
+        done.addEventListener('click', resetClick);
+        fail.addEventListener('click', resetClick);
+        
+        var subscribe = function(email) {
+            nanoajax.ajax({url: '/subscribe', method: 'POST', body: 'email=' + encodeURIComponent(email)}, function (code, responseText, request) {
+                input.disabled = true;
+                hide(send);
+                if (code == 200) {
+                    show(done);
+                } else {
+                    show(fail);
+                }
+            });
+        };
+        
+    }();
 </script>
 </body>
 </html>

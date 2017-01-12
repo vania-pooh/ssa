@@ -60,6 +60,7 @@ func subscribe(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Saved email [%s]\n", email)
 }
 
 func isValidEmail(email string) bool {
