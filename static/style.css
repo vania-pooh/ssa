@@ -16,3 +16,20 @@ html, body, .container-table {
 img {
     margin-bottom: 1em;
 }
+
+.large {
+    font-size: 125%;
+    color:#fff;
+    padding-left: 1em;
+    border-radius: 10px;
+}
+
+.fail {
+    background-color:#c9302c;
+    border-color:#ac2925
+}
+
+.done {
+    background-color:#5cb85c;
+    border-color:#4cae4c
+}

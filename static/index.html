@@ -12,15 +12,15 @@
     <div class="row vertical-center-row">
         <div class="text-center col-md-4 col-md-offset-4">
             <img src="logo.png" alt="Logo" class="center-block" aria-label="Logo">
-            <form class="form-inline">
+            <form id="subscribe" class="form-inline">
                 <div class="form-group">
                     <input id="email" type="text" class="form-control input-lg" name="email" placeholder="john.smith@test.com" autofocus>
                 </div>
                 <button id="send" type="submit" class="btn btn-default btn-lg" title="Click to send" aria-label="Click to send" disabled>Notify me</button>
-                <button id="done" class="btn btn-default btn-success btn-lg hidden" title="Click to try again" aria-label="Click to try again">Done</button>
-                <button id="fail" class="btn btn-default btn-danger btn-lg hidden" title="Click to try again" aria-label="Click to try again">Failed</button>
                 <span class="help-block">Leave your email to be notified when launched.</span>
             </form>
+            <div id="done" class="large done hidden">Thank you! We'll contact you soon.</div>
+            <div id="fail" class="large btn-danger hidden">Something went wrong. Try again later.</div>
         </div>
     </div>
 </div>
@@ -30,6 +30,7 @@
 
     !function() {
         var send = document.getElementById('send'),
+            form = document.getElementById('subscribe'),
             done = document.getElementById('done'),
             fail = document.getElementById('fail'),
             input = document.getElementById('email');
@@ -67,20 +68,10 @@
         input.addEventListener('keyup', onType);
         onType();
         
-        var resetClick = function(e) {
-            e.preventDefault();
-            input.disabled = false;
-            hide(done);
-            hide(fail);
-            show(send);
-        };
-        done.addEventListener('click', resetClick);
-        fail.addEventListener('click', resetClick);
-        
         var subscribe = function(email) {
             nanoajax.ajax({url: '/subscribe', method: 'POST', body: 'email=' + encodeURIComponent(email)}, function (code, responseText, request) {
                 input.disabled = true;
-                hide(send);
+                hide(form);
                 if (code == 200) {
                     show(done);
                 } else {
